@@ -1,0 +1,13 @@
+/.idea
+/.vscode
+/thinkphp
+/vendor
+*.log
+runtime
+.env
+.DS_Store
+
+composer.lock
+composer.bat
+php.bat
+./think
