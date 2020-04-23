@@ -9,7 +9,10 @@
 namespace ke\auth\model;
 
 
+use ke\auth\exception\ErrorException;
 use ke\auth\Token;
+use think\Exception;
+use think\exception\PDOException;
 use think\facade\Request;
 use think\Db;
 
@@ -34,8 +37,6 @@ class Auth
     const TABLE_ADMIN_POLICY = 'admin_policy';
 
     private static $handle;
-
-    private $error = '';
 
     /**
      * 令牌存储的信息
@@ -92,27 +93,22 @@ class Auth
      * 初始化
      * @param string $token
      * @return bool
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @throws ErrorException
      */
     public function init($token)
     {
         $tok = new Token();
         $result = $tok->verify($token);
         if (!$result) {
-            $this->error = '令牌授权失效';
-            return false;
+            throw new ErrorException('令牌授权失效');
         }
         $this->tok_info = $result;
         $admin = Db::name(static::TABLE_ADMIN)->where('id', $result['id'])->find();
         if (!$admin) {
-            $this->error = '账户不存在';
-            return false;
+            throw new ErrorException('账户不存在');
         }
         if ($admin['status'] == 1) {
-            $this->error = '账户被禁用';
-            return false;
+            throw new ErrorException('账户被禁用');
         }
         $this->adm_info = $admin;
 
@@ -121,47 +117,30 @@ class Auth
 
 
     /**
-     * 获取错误消息
-     * @return string
-     */
-    public function getError()
-    {
-        return $this->error;
-    }
-
-
-    /**
      * 登录
      * @param string $username
      * @param string $password
      * @return bool
-     * @throws \think\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     * @throws \think\exception\PDOException
+     * @throws ErrorException
      */
     public function login($username, $password)
     {
         $admin = Db::name(static::TABLE_ADMIN)->where('username', $username)->find();
         if (!$admin) {
-            $this->error = "账号“{$username}”不存在";
-            return false;
+            throw new ErrorException("账号“{$username}”不存在");
         }
         if ($admin['status'] == 1) {
-            $this->error = "账号“{$username}”被禁用";
-            return false;
+            throw new ErrorException("账号“{$username}”被禁用");
         }
         if (!password_verify($password, $admin['password'])) {
-            $this->error = '密码错误';
-            return false;
+            throw new ErrorException('密码错误');
         }
         Db::name(static::TABLE_ADMIN)
             ->where('id', $admin['id'])
             ->update([
-                'login_ip'=>Request::ip(true),
-                'login_time'=>$_SERVER['REQUEST_TIME'],
-                'login_count'=>$admin['login_count'] + 1
+                'login_ip' => Request::ip(true),
+                'login_time' => $_SERVER['REQUEST_TIME'],
+                'login_count' => $admin['login_count'] + 1,
             ]);
 
         $this->adm_info = $admin;

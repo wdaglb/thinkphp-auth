@@ -1,7 +1,8 @@
 {
     "name": "ke/thinkphp-auth",
-    "description": "the new thinkphp framework",
+    "description": "the thinkphp auth",
     "type": "library",
+    "minimum-stability": "dev",
     "require": {
         "php": ">=7.0",
         "ke/thinkphp-migration": "^1.0"
@@ -26,7 +27,7 @@
         }
     },
     "require-dev": {
-        "topthink/framework": "^5.1",
+        "topthink/framework": "5.1.*",
         "phpunit/phpunit": "^9.1"
     },
     "extra": {
