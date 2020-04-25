@@ -15,6 +15,7 @@ use think\Exception;
 use think\exception\PDOException;
 use think\facade\Request;
 use think\Db;
+use const http\Client\Curl\AUTH_ANY;
 
 /**
  * Class Auth
@@ -149,6 +150,55 @@ class Auth
 
         unset($admin['password']);
         return $token->create($admin);
+    }
+
+
+    /**
+     * 添加用户
+     * @param string $username
+     * @param string $password
+     * @param string $nickname
+     * @param array $info
+     * @return string
+     * @throws ErrorException
+     */
+    public function addUser($username,
+                            $password,
+                            $nickname,
+                            array $info = [])
+    {
+        if (Db::name(Auth::TABLE_ADMIN)
+            ->where('username', $username)
+            ->value('id')) {
+            throw new ErrorException('账号已存在');
+        }
+        $data = Db::name(Auth::TABLE_ADMIN)
+            ->insert(array_merge([
+                'username'=>$username,
+                'password'=>password_hash($password, PASSWORD_DEFAULT),
+                'nickname'=>$nickname,
+            ], $info));
+        if (!$data) {
+            throw new ErrorException('添加失败');
+        }
+
+        return Db::getLastInsID();
+    }
+
+
+    /**
+     * 添加用户角色ID
+     * @param int $userId
+     * @param int $roleId
+     * @return bool
+     */
+    public function addUserForRoleId($userId, $roleId)
+    {
+        return Db::name(Auth::TABLE_ADMIN_ROLE_ACCESS)
+            ->insert([
+                'admin_id'=>$userId,
+                'role_id'=>$roleId
+            ]);
     }
 
 
