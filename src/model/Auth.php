@@ -145,13 +145,20 @@ class Auth
                 'login_time' => $_SERVER['REQUEST_TIME'],
                 'login_count' => $admin['login_count'] + 1,
             ]);
-        $admin['username'] = 'we';
+        $admin['login_time'] = date('Y-m-d H:i:s', $admin['login_time']);
+        $admin['create_time'] = date('Y-m-d H:i:s', $admin['create_time']);
+        $admin['update_time'] = date('Y-m-d H:i:s', $admin['update_time']);
+        $admin['login_ip'] = long2ip($admin['login_ip']);
 
         $this->adm_info = $admin;
 
         $token = new Token();
 
-        unset($admin['password']);
+        unset(
+            $admin['password'],
+            $admin['login_fail_time'],
+            $admin['login_fail_count']
+        );
         return $token->create($admin);
     }
 
