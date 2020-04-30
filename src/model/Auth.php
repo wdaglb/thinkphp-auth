@@ -15,7 +15,6 @@ use think\Exception;
 use think\exception\PDOException;
 use think\facade\Request;
 use think\Db;
-use const http\Client\Curl\AUTH_ANY;
 
 /**
  * Class Auth
@@ -104,13 +103,16 @@ class Auth
             throw new ErrorException('令牌授权失效');
         }
         $this->tok_info = $result;
-        $admin = Db::name(static::TABLE_ADMIN)->where('id', $result['id'])->find();
+        $admin = Db::name(static::TABLE_ADMIN)
+            ->where('id', $result['id'])
+            ->find();
         if (!$admin) {
             throw new ErrorException('账户不存在');
         }
         if ($admin['status'] == 1) {
             throw new ErrorException('账户被禁用');
         }
+
         $this->adm_info = $admin;
 
         return true;
@@ -143,6 +145,7 @@ class Auth
                 'login_time' => $_SERVER['REQUEST_TIME'],
                 'login_count' => $admin['login_count'] + 1,
             ]);
+        $admin['username'] = 'we';
 
         $this->adm_info = $admin;
 
