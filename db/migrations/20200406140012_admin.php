@@ -12,6 +12,7 @@ class Admin extends AbstractMigration
         $table->addColumn('username', 'string', ['limit'=>64, 'comment'=>'账号名']);
         $table->addColumn('password', 'string', ['limit'=>255, 'comment'=>'密码']);
         $table->addColumn('nickname', 'string', ['limit'=>20, 'comment'=>'名字']);
+        $table->addColumn('avatar', 'string', ['limit'=>255, 'comment'=>'头像']);
         $table->addColumn('phone', 'string', ['limit'=>11, 'comment'=>'手机号']);
         $table->addColumn('status', MysqlAdapter::PHINX_TYPE_BOOLEAN, ['comment'=>'状态：0正常，1禁用', 'default'=>0]);
         $table->addColumn('create_time', MysqlAdapter::PHINX_TYPE_INTEGER,
