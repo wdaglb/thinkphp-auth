@@ -34,6 +34,7 @@ class PublishCommand extends Command
             }
         }
 
+        $output->writeln('publish success!');
     }
 
 }
