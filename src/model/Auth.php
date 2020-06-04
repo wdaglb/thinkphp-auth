@@ -93,13 +93,12 @@ class Auth
 
     /**
      * 初始化
-     * @param string $token
      * @return bool
      * @throws ErrorException
      */
-    public function init($token)
+    public function init()
     {
-        $result = $this->tokenHandle->verify($token);
+        $result = $this->tokenHandle->verify();
         if (!$result) {
             throw new ErrorException('令牌授权失效');
         }

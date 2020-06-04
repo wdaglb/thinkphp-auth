@@ -35,6 +35,17 @@ class Token
 
 
     /**
+     * 获取Cookie
+     * @param $key
+     * @return mixed
+     */
+    protected function getCookie($key)
+    {
+        return Cookie::get($this->prefix . '_' . $key);
+    }
+
+
+    /**
      * 设置缓存
      * @param $key
      * @param $value
@@ -91,21 +102,20 @@ class Token
      * 校验令牌合法性
      * 成功返回用户信息
      *
-     * @param string $token
      * @return false|User
      */
-    public function verify($token)
+    public function verify()
     {
-        $this->token = $token;
-        $cache = $this->getCache('auth:' . $token);
+        $this->token = $this->getCookie('token');
+        $cache = $this->getCache('auth:' . $this->token);
 
         if (empty($cache)) {
             return false;
         }
         // 更新有效期
         $this->expire_in = $cache['expire_in'];
-        $this->setCookie('token', $token);
-        $this->setCache('auth:'. $token, [
+        $this->setCookie('token', $this->token);
+        $this->setCache('auth:'. $this->token, [
             'expire_in'=>$this->expire_in,
             'id'=>$cache['id']
         ]);
@@ -116,14 +126,10 @@ class Token
 
     /**
      * 删除令牌
-     * @param $token
      */
-    public function remove($token = null)
+    public function remove()
     {
-        if (is_null($token)) {
-            $token = $this->token;
-        }
-        $this->rmCache('auth:' . $token);
+        $this->rmCache('auth:' . $this->token);
     }
 
 }
