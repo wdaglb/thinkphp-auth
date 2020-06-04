@@ -10,9 +10,6 @@ namespace ke\auth\model;
 
 
 use ke\auth\exception\ErrorException;
-use ke\auth\Token;
-use think\Exception;
-use think\exception\PDOException;
 use think\facade\Request;
 use think\Db;
 
@@ -45,10 +42,9 @@ class Auth
     private $tok_info = [];
 
     /**
-     * 实时获取的信息
-     * @var array
+     * @var Token
      */
-    private $adm_info = [];
+    private $tokenHandle;
 
     /**
      * @var Access
@@ -72,6 +68,12 @@ class Auth
     }
 
 
+    private function __construct()
+    {
+        $this->tokenHandle = new Token();
+    }
+
+
     public function __get($name)
     {
         if ($name === 'access') {
@@ -85,7 +87,7 @@ class Auth
             }
             return $this->roleHandle;
         }
-        return $this->getUserInfo($name);
+        return $this->getInfo($name);
     }
 
 
@@ -97,25 +99,23 @@ class Auth
      */
     public function init($token)
     {
-        $tok = new Token();
-        $result = $tok->verify($token);
+        $result = $this->tokenHandle->verify($token);
         if (!$result) {
             throw new ErrorException('令牌授权失效');
         }
         $this->tok_info = $result;
-        $admin = Db::name(static::TABLE_ADMIN)
-            ->where('id', $result['id'])
-            ->find();
-        if (!$admin) {
-            throw new ErrorException('账户不存在');
-        }
-        if ($admin['status'] == 1) {
-            throw new ErrorException('账户被禁用');
-        }
-
-        $this->adm_info = $admin;
 
         return true;
+    }
+
+
+    /**
+     * 获取Token实例
+     * @return Token
+     */
+    public function token()
+    {
+        return $this->tokenHandle;
     }
 
 
@@ -128,38 +128,35 @@ class Auth
      */
     public function login($username, $password)
     {
-        $admin = Db::name(static::TABLE_ADMIN)->where('username', $username)->find();
+        $admin = User::where('username', $username)->find();
         if (!$admin) {
             throw new ErrorException("账号“{$username}”不存在");
         }
-        if ($admin['status'] == 1) {
+        if ($admin->status == 1) {
             throw new ErrorException("账号“{$username}”被禁用");
         }
-        if (!password_verify($password, $admin['password'])) {
+        if (!password_verify($password, $admin->password)) {
             throw new ErrorException('密码错误');
         }
-        Db::name(static::TABLE_ADMIN)
-            ->where('id', $admin['id'])
-            ->update([
-                'login_ip' => Request::ip(true),
-                'login_time' => $_SERVER['REQUEST_TIME'],
-                'login_count' => $admin['login_count'] + 1,
-            ]);
-        $admin['login_time'] = date('Y-m-d H:i:s', $admin['login_time']);
-        $admin['create_time'] = date('Y-m-d H:i:s', $admin['create_time']);
-        $admin['update_time'] = date('Y-m-d H:i:s', $admin['update_time']);
-        $admin['login_ip'] = long2ip($admin['login_ip']);
+        $admin->save([
+            'login_ip' => Request::ip(true),
+            'login_time' => $_SERVER['REQUEST_TIME'],
+            'login_count' => $admin['login_count'] + 1,
+        ]);
 
-        $this->adm_info = $admin;
+        $admin->hidden(['password', 'login_fail_time', 'login_fail_count']);
+        $this->tok_info = $admin->toArray();
 
-        $token = new Token();
+        return $this->tokenHandle->create($admin);
+    }
 
-        unset(
-            $admin['password'],
-            $admin['login_fail_time'],
-            $admin['login_fail_count']
-        );
-        return $token->create($admin);
+
+    /**
+     * 注销当前用户
+     */
+    public function logout()
+    {
+        $this->tokenHandle->remove();
     }
 
 
@@ -213,25 +210,11 @@ class Auth
 
 
     /**
-     * 获取登陆信息
-     * @param string $col
-     * @return mixed
-     */
-    public function getUserInfo($col = null)
-    {
-        if (!is_null($col)) {
-            return $this->adm_info[$col];
-        }
-        return $this->adm_info;
-    }
-
-
-    /**
      * 获取令牌信息
      * @param string $col
      * @return array
      */
-    public function getTokenInfo($col = null)
+    public function getInfo($col = null)
     {
         if (!is_null($col)) {
             return $this->tok_info[$col];
@@ -248,7 +231,7 @@ class Auth
     public function getRolesId($user_id = null)
     {
         if (is_null($user_id)) {
-            $user_id = $this->getUserInfo('id');
+            $user_id = $this->getInfo('id');
         }
         return Db::name(Auth::TABLE_ADMIN_ROLE_ACCESS)
             ->where('admin_id', $user_id)
