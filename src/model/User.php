@@ -33,4 +33,9 @@ class User extends Model
 
         return password_verify($password, $pwd);
     }
+
+    public function setPasswordAttr($value)
+    {
+        return password_hash($value, PASSWORD_DEFAULT);
+    }
 }

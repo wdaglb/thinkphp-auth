@@ -25,6 +25,7 @@ use think\Db;
  * @property-read Access $access
  * @property-read Role $role
  * @method bool verifyPassword(string $password)
+ * @method bool save(array $data = null)
  */
 class Auth
 {
@@ -101,16 +102,6 @@ class Auth
     public function __call($name, $arguments)
     {
         return call_user_func_array([$this->tok_info, $name], $arguments);
-    }
-
-
-    /**
-     * @param array $fields
-     * @return bool
-     */
-    public function save(array $fields = [])
-    {
-        return $this->tok_info->save($fields);
     }
 
 
