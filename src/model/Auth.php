@@ -37,7 +37,7 @@ class Auth
 
     /**
      * 令牌存储的信息
-     * @var array
+     * @var User
      */
     private $tok_info = [];
 
@@ -88,6 +88,22 @@ class Auth
             return $this->roleHandle;
         }
         return $this->getInfo($name);
+    }
+
+
+    public function __set($name, $value)
+    {
+        $this->tok_info[$name] = $value;
+    }
+
+
+    /**
+     * @param array $fields
+     * @return bool
+     */
+    public function save(array $fields = [])
+    {
+        return $this->tok_info->save($fields);
     }
 
 
