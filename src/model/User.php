@@ -26,4 +26,11 @@ class User extends Model
     {
         return ip2long($val);
     }
+
+    public function verifyPassword(string $password)
+    {
+        $pwd = $this->getData('password');
+
+        return password_verify($password, $pwd);
+    }
 }
