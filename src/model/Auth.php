@@ -24,6 +24,7 @@ use think\Db;
  * @property-read int $status
  * @property-read Access $access
  * @property-read Role $role
+ * @method bool verifyPassword(string $password)
  */
 class Auth
 {
@@ -94,6 +95,12 @@ class Auth
     public function __set($name, $value)
     {
         $this->tok_info[$name] = $value;
+    }
+
+
+    public function __call($name, $arguments)
+    {
+        return call_user_func_array([$this->tok_info, $name], $arguments);
     }
 
 
