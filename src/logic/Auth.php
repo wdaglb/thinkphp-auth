@@ -16,7 +16,7 @@ class Auth
     /**
      * @var KeUser
      */
-    protected $user;
+    public $user;
 
     /**
      * 登陆
