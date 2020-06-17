@@ -1,21 +1,15 @@
 <?php
-/**
- * +----------------------------------------------------------------------
- * | Name: keAdmin
- * | Author King east To 1207877378@qq.com
- * +----------------------------------------------------------------------
- */
 
 
-namespace ke\auth\model;
+namespace ke\auth\logic;
 
 
-use think\Db;
 use think\facade\Cache;
 use think\facade\Cookie;
 
-class Token
+class TokenManager
 {
+
     private $prefix = 'admin';
 
     private $expire_in;
@@ -30,7 +24,11 @@ class Token
      */
     protected function setCookie($key, $value)
     {
-        Cookie::set($this->prefix . '_' . $key, $value, $this->expire_in);
+        if (empty($_ENV['PHPUNIT'])) {
+            Cookie::set($this->prefix . '_' . $key, $value, $this->expire_in);
+        } else {
+            $_COOKIE[$this->prefix . '_' . $key] = $value;
+        }
     }
 
 
@@ -41,7 +39,11 @@ class Token
      */
     protected function getCookie($key)
     {
-        return Cookie::get($this->prefix . '_' . $key);
+        if (empty($_ENV['PHPUNIT'])) {
+            return Cookie::get($this->prefix . '_' . $key);
+        } else {
+            return $_COOKIE[$this->prefix . '_' . $key];
+        }
     }
 
 
@@ -81,18 +83,18 @@ class Token
     /**
      * 创建令牌
      *
-     * @param User $info 令牌存储信息
+     * @param string $key 用户标识
      * @param int $expire 有效时间
      * @return string
      */
-    public function create(User $info, $expire = 28800)
+    public function create($key, $expire = 28800)
     {
         $this->expire_in = $expire;
-        $this->token = strtoupper(md5(uniqid($info->id) . mt_rand(0, 9999999)));
+        $this->token = strtoupper(md5(uniqid($key) . mt_rand(0, 9999999)));
         $this->setCookie('token', $this->token);
         $this->setCache('auth:' . $this->token, [
             'expire_in'=>$expire,
-            'id'=>$info->id,
+            'key'=>$key,
         ]);
         return $this->token;
     }
@@ -100,9 +102,9 @@ class Token
 
     /**
      * 校验令牌合法性
-     * 成功返回用户信息
+     * 成功返回用户标识
      *
-     * @return false|User
+     * @return false|string
      */
     public function verify()
     {
@@ -117,10 +119,10 @@ class Token
         $this->setCookie('token', $this->token);
         $this->setCache('auth:'. $this->token, [
             'expire_in'=>$this->expire_in,
-            'id'=>$cache['id']
+            'key'=>$cache['key']
         ]);
 
-        return User::where('id', $cache['id'])->find();
+        return $cache['key'];
     }
 
 

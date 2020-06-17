@@ -4,7 +4,8 @@
 namespace ke\auth\tests;
 
 
-use ke\auth\model\Auth;
+use ke\auth\exception\AuthException;
+use ke\auth\logic\Auth;
 use think\Db;
 use think\facade\Env;
 
@@ -14,10 +15,12 @@ class AuthTest extends TestCase
     {
         $this->login();
 
-        $auth = Auth::instance();
+        $user = Auth::instance()->init();
 
-        $auth->getUserInfo();
-        $auth->getTokenInfo();
+        $has = $user->hasAuth(['All', 'we'], 'and');
+
+        var_dump($has);
+
     }
 
 }
