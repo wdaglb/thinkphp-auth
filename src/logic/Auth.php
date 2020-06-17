@@ -16,7 +16,7 @@ class Auth
     /**
      * @var KeUser
      */
-    public $user;
+    protected $user;
 
     /**
      * 登陆
@@ -80,6 +80,24 @@ class Auth
         }
         $this->user = $user;
         return $user;
+    }
+
+
+    /**
+     * 获取用户资料
+     * @return KeUser
+     */
+    public function getInfo()
+    {
+        return $this->user->hidden([
+            'password'
+        ]);
+    }
+
+
+    public function __get($name)
+    {
+        return $this->user->$name;
     }
 
 
