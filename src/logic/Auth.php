@@ -10,6 +10,9 @@ use think\facade\Request;
 /**
  * Class KeAuth
  * @package ke\auth\logic
+ * @method bool verifyPassword(string $password)
+ * @method bool changePassword(string $old, string $new)
+ * @method bool save(array $data = [], array $where = [], string $sequence = null)
  */
 class Auth
 {
@@ -98,6 +101,15 @@ class Auth
     public function __get($name)
     {
         return $this->user->$name;
+    }
+
+
+    public function __call($name, $arguments)
+    {
+        return call_user_func_array([
+            $this->user,
+            $name,
+        ], $arguments);
     }
 
 
