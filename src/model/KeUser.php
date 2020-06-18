@@ -12,6 +12,9 @@ class KeUser extends Model
     protected $autoWriteTimestamp = true;
     protected $createTime = 'create_time';
     protected $updateTime = 'update_time';
+    protected $type = [
+        'id'=>'integer'
+    ];
 
 
     /**
