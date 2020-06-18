@@ -9,6 +9,7 @@ use think\Model;
 class KeRole extends Model
 {
     protected $pk = 'id';
+    protected $createTime = 'create_time';
     protected $name = 'admin_role';
 
 
