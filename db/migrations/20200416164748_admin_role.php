@@ -15,13 +15,6 @@ class AdminRole extends AbstractMigration
                 'default'=>0
             ]);
         $table->addColumn('create_time', 'integer');
-        $table->insert([
-            [
-                'id'=>1,
-                'name'=>'超级管理员',
-                'remark'=>'系统超级管理员'
-            ]
-        ]);
         $table->save();
     }
 }
