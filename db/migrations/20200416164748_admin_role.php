@@ -14,6 +14,7 @@ class AdminRole extends AbstractMigration
             \Phinx\Db\Adapter\MysqlAdapter::PHINX_TYPE_SMALL_INTEGER, [
                 'default'=>0
             ]);
+        $table->addColumn('create_time', 'integer');
         $table->insert([
             [
                 'id'=>1,
