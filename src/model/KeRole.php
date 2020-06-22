@@ -45,7 +45,7 @@ class KeRole extends Model
      */
     public function addPermissionById($id)
     {
-        KeRoleAccess::create([
+        KeRolePermission::create([
             'role_id'=>$this->id,
             'policy_id'=>$id,
         ]);
@@ -59,7 +59,7 @@ class KeRole extends Model
     public function addPermissionByName($name)
     {
         $id = KePolicy::where('name', $name)->value('id');
-        KeRoleAccess::create([
+        KeRolePermission::create([
             'role_id'=>$this->id,
             'policy_id'=>$id,
         ]);
@@ -72,7 +72,7 @@ class KeRole extends Model
      */
     public function clearPermission()
     {
-        KeRoleAccess::where('role_id', $this->id)->delete();
+        KeRolePermission::where('role_id', $this->id)->delete();
     }
 
 
@@ -83,7 +83,7 @@ class KeRole extends Model
      */
     public function delPermissionById($id)
     {
-        KeRoleAccess::where('role_id', $this->id)
+        KeRolePermission::where('role_id', $this->id)
             ->where('policy_id', $id)
             ->delete();
     }
@@ -97,7 +97,7 @@ class KeRole extends Model
     public function delPermissionByName($name)
     {
         $id = KePolicy::where('name', $name)->value('id');
-        KeRoleAccess::where('role_id', $this->id)
+        KeRolePermission::where('role_id', $this->id)
             ->where('policy_id', $id)
             ->delete();
     }
