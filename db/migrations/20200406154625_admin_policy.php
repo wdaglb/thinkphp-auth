@@ -13,13 +13,6 @@ class AdminPolicy extends AbstractMigration
         $table->addColumn('text', 'string', ['limit'=>64, 'comment'=>'说明']);
         $table->addColumn('sort', 'integer', ['comment'=>'顺序', 'default'=>0]);
         $table->addColumn('create_time', 'integer', ['comment'=>'创建时间']);
-        $table->insert([
-            [
-                'name'=>'All',
-                'text'=>'拥有所有权限',
-                'create_time'=>$_SERVER['REQUEST_TIME']
-            ]
-        ]);
         $table->save();
     }
 }
