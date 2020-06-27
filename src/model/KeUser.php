@@ -75,6 +75,29 @@ class KeUser extends Model
 
 
     /**
+     * 清空角色
+     * @throws \Exception
+     */
+    public function clearRole()
+    {
+        KeRoleAccess::where('admin_id', $this->id)->delete();
+    }
+
+
+    /**
+     * 添加角色
+     * @param $id
+     */
+    public function addRole($id)
+    {
+        KeRoleAccess::create([
+            'admin_id'=>$this->id,
+            'role_id'=>$id,
+        ]);
+    }
+
+
+    /**
      * 检索策略
      * @param string|array $policy 匹配策略
      * @param string $exp and必须匹配所有策略，or只有一条匹配成功则返回true
