@@ -99,19 +99,11 @@ class KeUser extends Model
 
 
     /**
-     * 检索策略
-     * @param string|array $policy 匹配策略
-     * @param string $exp and必须匹配所有策略，or只有一条匹配成功则返回true
-     * @return bool
-     * @throws AuthException
+     * 获取权限列表
+     * @return array
      */
-    public function hasAuth($policy, $exp = 'and')
+    public function getPolicys()
     {
-        $auth = Auth::instance();
-        if ($auth->isCreateUser()) {
-            return true;
-        }
-
         static $list;
         if (is_null($list)) {
             $role_id = $this->role()->column('id');
@@ -125,6 +117,25 @@ class KeUser extends Model
 
             $list = $model->column('policy.name');
         }
+        return $list;
+    }
+
+
+    /**
+     * 检索策略
+     * @param string|array $policy 匹配策略
+     * @param string $exp and必须匹配所有策略，or只有一条匹配成功则返回true
+     * @return bool
+     * @throws AuthException
+     */
+    public function hasAuth($policy, $exp = 'and')
+    {
+        $auth = Auth::instance();
+        if ($auth->isCreateUser()) {
+            return true;
+        }
+
+        $list = $this->getPolicys();
 
         if (is_string($policy)) {
             $res = in_array($policy, $list);
