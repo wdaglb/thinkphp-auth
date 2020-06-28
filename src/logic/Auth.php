@@ -17,6 +17,16 @@ use think\facade\Request;
 class Auth
 {
     /**
+     * 配置
+     * @var array
+     */
+    protected $config = [
+        // 创始人ID
+        // 创始人拥有所有权限，不可被删除，不可被普通管理修改信息
+        'create_uid'=>[1],
+    ];
+
+    /**
      * @var KeUser
      */
     protected $user;
@@ -61,6 +71,47 @@ class Auth
     public function logout()
     {
         (new TokenManager())->remove();
+    }
+
+
+    /**
+     * 设置配置
+     * - 需要在init调用前设置，否则不生效
+     * @param array $config
+     * @return $this
+     */
+    public function setConfig($config)
+    {
+        $this->config = array_merge($this->config, $config);
+        return $this;
+    }
+
+
+    /**
+     * 获取配置
+     * @param string $key
+     * @return array
+     */
+    public function getConfig($key = null)
+    {
+        if (!is_null($key)) {
+            return $this->config[$key];
+        }
+        return $this->config;
+    }
+
+
+    /**
+     * 判断id是否为创始人
+     * @param null|int $id 留空使用已登录ID
+     * @return bool
+     */
+    public function isCreateUser($id = null)
+    {
+        if (is_null($id)) {
+            $id = $this->user->id;
+        }
+        return in_array($id, $this->getConfig('create_uid'));
     }
 
 

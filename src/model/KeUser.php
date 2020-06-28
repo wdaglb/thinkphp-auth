@@ -4,6 +4,7 @@
 namespace ke\auth\model;
 
 use ke\auth\exception\AuthException;
+use ke\auth\logic\Auth;
 use think\Model;
 
 class KeUser extends Model
@@ -106,6 +107,11 @@ class KeUser extends Model
      */
     public function hasAuth($policy, $exp = 'and')
     {
+        $auth = Auth::instance();
+        if ($auth->isCreateUser()) {
+            return true;
+        }
+
         static $list;
         if (is_null($list)) {
             $role_id = $this->role()->column('id');
