@@ -31,6 +31,18 @@ class Auth
      */
     protected $user;
 
+
+    /**
+     * @var TokenManager
+     */
+    protected $token;
+
+    public function __construct()
+    {
+        $this->token = new TokenManager();
+    }
+
+
     /**
      * 登陆
      * @param string $username
@@ -58,7 +70,7 @@ class Auth
         ]);
 
         // 签发令牌
-        (new TokenManager())->create($user->id, $expire_in);
+        $this->token->create($user->id, $expire_in);
 
         $this->user = $user;
         return $user;
@@ -70,7 +82,7 @@ class Auth
      */
     public function logout()
     {
-        (new TokenManager())->remove();
+        $this->token->remove();
     }
 
 
