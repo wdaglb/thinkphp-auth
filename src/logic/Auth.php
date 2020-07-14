@@ -82,6 +82,7 @@ class Auth
      */
     public function logout()
     {
+        $this->user = [];
         $this->token->remove();
     }
 
@@ -151,10 +152,13 @@ class Auth
 
     /**
      * 获取用户资料
-     * @return KeUser
+     * @return KeUser|false
      */
     public function getInfo()
     {
+        if (empty($this->user)) {
+            return false;
+        }
         return $this->user->hidden([
             'password'
         ]);

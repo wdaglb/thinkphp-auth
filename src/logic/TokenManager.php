@@ -81,6 +81,16 @@ class TokenManager
 
 
     /**
+     * 删除cookie
+     * @param $key
+     */
+    protected function rmCookie($key)
+    {
+        Cache::rm($this->prefix . ':' . $key);
+    }
+
+
+    /**
      * 创建令牌
      *
      * @param string $key 用户标识
@@ -132,6 +142,7 @@ class TokenManager
     public function remove()
     {
         $this->rmCache('auth:' . $this->token);
+        $this->rmCookie('token');
     }
 
 }
