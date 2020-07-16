@@ -40,6 +40,28 @@ class KeRole extends Model
 
 
     /**
+     * 获取当前角色权限ID
+     * @return array
+     */
+    public function byIdPermissions()
+    {
+        static $list;
+        if (is_null($list)) {
+            $policyTable = (new KePolicy())->getTable();
+
+            $model = (new KeRolePermission())->db()
+                ->alias('p')
+                ->join($policyTable . ' policy', 'p.policy_id=policy.id')
+                ->where('p.role_id', $this->id);
+
+            $list = $model->column('policy.id');
+        }
+
+        return $list;
+    }
+
+
+    /**
      * 添加权限ById
      * @param int $id
      */
