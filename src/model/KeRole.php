@@ -46,6 +46,7 @@ class KeRole extends Model
     public function byIdPermissions()
     {
         static $list;
+		
         if (is_null($list)) {
             $policyTable = (new KePolicy())->getTable();
 
