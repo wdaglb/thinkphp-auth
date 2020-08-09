@@ -22,6 +22,9 @@ class KeUser extends Model
     public function getPermissionAttr()
     {
         $data = $this->getData('permission');
+        if (empty($data)) {
+            return [];
+        }
 
         return explode(',', $data);
     }
