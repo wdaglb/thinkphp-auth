@@ -12,14 +12,8 @@ class AdminRolePermission extends AbstractMigration
             'id'=>false
         ]);
         $table->addColumn('role_id', 'integer', ['comment'=>'角色ID']);
-        $table->addColumn('policy_id', 'integer', ['comment'=>'策略ID']);
-        $table->addIndex(['role_id', 'policy_id']);
-        $table->insert([
-            [
-                'role_id'=>1,
-                'policy_id'=>1
-            ]
-        ]);
+        $table->addColumn('policy', 'string', ['comment'=>'策略', 'limit'=>64]);
+        $table->addIndex(['role_id', 'policy']);
         $table->save();
     }
 }

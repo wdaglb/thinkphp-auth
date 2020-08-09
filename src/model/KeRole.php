@@ -24,38 +24,12 @@ class KeRole extends Model
     public function permissions()
     {
         static $list;
-        if (is_null($list)) {
-            $policyTable = (new KePolicy())->getTable();
-
-            $model = (new KeRolePermission())->db()
-                ->alias('p')
-                ->join($policyTable . ' policy', 'p.policy_id=policy.id')
-                ->where('p.role_id', $this->id);
-
-            $list = $model->column('policy.name');
-        }
-
-        return $list;
-    }
-
-
-    /**
-     * 获取当前角色权限ID
-     * @return array
-     */
-    public function byIdPermissions()
-    {
-        static $list;
 		
         if (is_null($list)) {
-            $policyTable = (new KePolicy())->getTable();
-
             $model = (new KeRolePermission())->db()
-                ->alias('p')
-                ->join($policyTable . ' policy', 'p.policy_id=policy.id')
-                ->where('p.role_id', $this->id);
+                ->where('role_id', $this->id);
 
-            $list = $model->column('policy.id');
+            $list = $model->column('policy');
         }
 
         return $list;
@@ -63,28 +37,14 @@ class KeRole extends Model
 
 
     /**
-     * 添加权限ById
-     * @param int $id
-     */
-    public function addPermissionById($id)
-    {
-        KeRolePermission::create([
-            'role_id'=>$this->id,
-            'policy_id'=>$id,
-        ]);
-    }
-
-
-    /**
-     * 添加权限byName
+     * 添加权限
      * @param string $name
      */
-    public function addPermissionByName($name)
+    public function addPermission($name)
     {
-        $id = KePolicy::where('name', $name)->value('id');
         KeRolePermission::create([
             'role_id'=>$this->id,
-            'policy_id'=>$id,
+            'policy'=>$name,
         ]);
     }
 
@@ -100,28 +60,14 @@ class KeRole extends Model
 
 
     /**
-     * 删除权限ById
-     * @param int $id
-     * @throws \Exception
-     */
-    public function delPermissionById($id)
-    {
-        KeRolePermission::where('role_id', $this->id)
-            ->where('policy_id', $id)
-            ->delete();
-    }
-
-
-    /**
-     * 删除权限ByName
+     * 删除权限
      * @param string $name
      * @throws \Exception
      */
-    public function delPermissionByName($name)
+    public function delPermission($name)
     {
-        $id = KePolicy::where('name', $name)->value('id');
         KeRolePermission::where('role_id', $this->id)
-            ->where('policy_id', $id)
+            ->where('policy', $name)
             ->delete();
     }
 

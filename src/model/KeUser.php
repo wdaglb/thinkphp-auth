@@ -108,14 +108,10 @@ class KeUser extends Model
         if (is_null($list)) {
             $role_id = $this->role()->column('id');
 
-            $policyTable = (new KePolicy())->getTable();
-
             $model = (new KeRolePermission())->db()
-                ->alias('p')
-                ->join($policyTable . ' policy', 'p.policy_id=policy.id')
-                ->where('p.role_id', 'in', $role_id);
+                ->where('role_id', 'in', $role_id);
 
-            $list = $model->column('policy.name');
+            $list = $model->column('policy');
         }
         return $list;
     }
