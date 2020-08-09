@@ -17,58 +17,61 @@ class KeRole extends Model
     ];
 
 
-    /**
-     * 获取当前角色权限
-     * @return array
-     */
-    public function permissions()
+    public function getPermissionAttr()
     {
-        static $list;
-		
-        if (is_null($list)) {
-            $model = (new KeRolePermission())->db()
-                ->where('role_id', $this->id);
+        $data = $this->getData('permission');
 
-            $list = $model->column('policy');
-        }
+        return explode(',', $data);
+    }
 
-        return $list;
+
+    public function setPermissionAttr($data)
+    {
+        return implode(',', $data);
     }
 
 
     /**
      * 添加权限
      * @param string $name
+     * @return KeRole
      */
     public function addPermission($name)
     {
-        KeRolePermission::create([
-            'role_id'=>$this->id,
-            'policy'=>$name,
-        ]);
+        $permission = $this->getAttr('permission');
+        $permission[] = $name;
+
+        $this->setAttr('permission', $permission);
+
+        return $this;
     }
 
 
     /**
      * 清空角色权限
+     * @return KeRole
      * @throws \Exception
      */
     public function clearPermission()
     {
-        KeRolePermission::where('role_id', $this->id)->delete();
+        $this->setAttr('permission', []);
+        return $this;
     }
 
 
     /**
      * 删除权限
      * @param string $name
+     * @return KeRole
      * @throws \Exception
      */
     public function delPermission($name)
     {
-        KeRolePermission::where('role_id', $this->id)
-            ->where('policy', $name)
-            ->delete();
+        $permission = $this->getAttr('permission');
+        $idx = array_search($name, $permission);
+        array_splice($permission, $idx, 1);
+        $this->setAttr('permission', $permission);
+        return $this;
     }
 
 }

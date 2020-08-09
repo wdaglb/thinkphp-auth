@@ -21,6 +21,10 @@ class AuthTest extends TestCase
 
         var_dump($has);
 
+        $res = $user->getPolicys();
+
+        var_dump($res);
+
     }
 
 }

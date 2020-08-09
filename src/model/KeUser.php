@@ -5,6 +5,7 @@ namespace ke\auth\model;
 
 use ke\auth\exception\AuthException;
 use ke\auth\logic\Auth;
+use think\db\Query;
 use think\Model;
 
 class KeUser extends Model
@@ -16,6 +17,20 @@ class KeUser extends Model
     protected $type = [
         'id'=>'integer'
     ];
+
+
+    public function getPermissionAttr()
+    {
+        $data = $this->getData('permission');
+
+        return explode(',', $data);
+    }
+
+
+    public function setPermissionAttr($data)
+    {
+        return implode(',', $data);
+    }
 
 
     /**
@@ -60,58 +75,38 @@ class KeUser extends Model
 
 
     /**
-     * 关联角色列表
-     * @return KeRole[]
+     * 关联角色明细
+     * @return \think\model\relation\HasMany
      */
-    public function role()
+    public function roleAccess()
     {
-        static $list;
-        if (is_null($list)) {
-            $role_id = KeRoleAccess::where('admin_id', $this->id)->column('role_id');
-            $list = KeRole::where('id', 'in', $role_id)->select();
-        }
-
-        return $list;
-    }
-
-
-    /**
-     * 清空角色
-     * @throws \Exception
-     */
-    public function clearRole()
-    {
-        KeRoleAccess::where('admin_id', $this->id)->delete();
-    }
-
-
-    /**
-     * 添加角色
-     * @param $id
-     */
-    public function addRole($id)
-    {
-        KeRoleAccess::create([
-            'admin_id'=>$this->id,
-            'role_id'=>$id,
-        ]);
+        return $this->hasMany(KeRoleAccess::class, 'admin_id', 'id');
     }
 
 
     /**
      * 获取权限列表
      * @return array
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function getPolicys()
     {
         static $list;
         if (is_null($list)) {
-            $role_id = $this->role()->column('id');
-
-            $model = (new KeRolePermission())->db()
-                ->where('role_id', 'in', $role_id);
-
-            $list = $model->column('policy');
+            $list = $this->getAttr('permission') ?? [];
+            $temps = $this->roleAccess()
+                ->with(['detail'=>function (Query  $query) {
+                    $query->field('id,permission');
+                }])
+                ->where('scope', 'user')
+                ->field('id,role_id')
+                ->select();
+            foreach ($temps as $tmp) {
+                $list = array_merge($list, $tmp->detail->permission);
+            }
+            $list = array_unique($list);
         }
         return $list;
     }
@@ -123,6 +118,9 @@ class KeUser extends Model
      * @param string $exp and必须匹配所有策略，or只有一条匹配成功则返回true
      * @return bool
      * @throws AuthException
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function hasAuth($policy, $exp = 'and')
     {
@@ -152,4 +150,5 @@ class KeUser extends Model
         }
         return true;
     }
+
 }

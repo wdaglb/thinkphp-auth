@@ -44,6 +44,7 @@ class Admin extends AbstractMigration
             'signed'=>0,
             'limit'=>4
         ]);
+        $table->addColumn('permission', 'text', ['null'=>true, 'comment'=>'拥有权限']);
 
         $table->addIndex(['username'], ['unique'=>true]);
 

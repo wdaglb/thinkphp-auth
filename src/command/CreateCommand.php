@@ -2,14 +2,12 @@
 
 namespace ke\auth\command;
 
-use ke\auth\Auth;
 use ke\auth\model\KePolicy;
 use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
-use think\Db;
 
 class CreateCommand extends Command
 {
