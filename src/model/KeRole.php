@@ -33,13 +33,17 @@ class KeRole extends Model
 
     /**
      * 添加权限
-     * @param string $name
+     * @param string|array $name
      * @return KeRole
      */
     public function addPermission($name)
     {
-        $permission = $this->getAttr('permission');
-        $permission[] = $name;
+        $permission = $this->getAttr('permission') ?? [];
+        if (is_array($name)) {
+            $permission = array_merge($permission, $name);
+        } else {
+            $permission[] = $name;
+        }
 
         $this->setAttr('permission', $permission);
 
