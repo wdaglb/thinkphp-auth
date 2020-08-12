@@ -118,7 +118,10 @@ class TokenManager
      */
     public function verify()
     {
-        $this->token = $this->getCookie('token');
+        list($type, $this->token) = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (empty($this->token)) {
+            return false;
+        }
         $cache = $this->getCache('auth:' . $this->token);
 
         if (empty($cache)) {
