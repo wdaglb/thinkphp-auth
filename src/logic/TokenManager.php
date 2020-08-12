@@ -118,7 +118,11 @@ class TokenManager
      */
     public function verify()
     {
-        list($type, $this->token) = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        $list = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+        if (empty($list)) {
+            return false;
+        }
+        list($type, $this->token) = $list;
         if (empty($this->token)) {
             return false;
         }
