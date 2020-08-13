@@ -62,7 +62,7 @@ class Auth
      * @return $this
      * @throws AuthException
      */
-    public function login($username, $password, $expire_in = 2880)
+    public function login($username, $password, $expire_in = 7200)
     {
         $user = KeUser::where('username', $username)->find();
         if (!$user) {
@@ -158,6 +158,25 @@ class Auth
         }
         $this->user = $user;
         return $user;
+    }
+
+
+    /**
+     * 刷新登录态有效时长
+     * 登陆后初始化用
+     * @param int $expire_in 有效时长
+     * @return true
+     * @throws AuthException
+     */
+    public function refresh($expire_in = 7200)
+    {
+        try {
+            $this->token->refresh($expire_in);
+
+            return true;
+        } catch (\InvalidArgumentException $e) {
+            throw new AuthException($e->getMessage());
+        }
     }
 
 

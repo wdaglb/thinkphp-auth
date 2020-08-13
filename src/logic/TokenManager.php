@@ -5,7 +5,6 @@ namespace ke\auth\logic;
 
 
 use think\facade\Cache;
-use think\facade\Cookie;
 
 class TokenManager
 {
@@ -73,17 +72,14 @@ class TokenManager
      * 创建令牌
      *
      * @param string $key 用户标识
-     * @param int $expire 有效时间
+     * @param int $expire_in 有效时间
      * @return string
      */
-    public function create($key, $expire = 28800)
+    public function create($key, $expire_in)
     {
-        $this->expire_in = $expire;
+        $this->expire_in = $expire_in;
         $this->token = strtoupper(md5(uniqid($key) . mt_rand(0, 9999999)));
-        $this->setCache('auth:' . $this->token, [
-            'expire_in'=>$expire,
-            'key'=>$key,
-        ]);
+        $this->setCache('auth:' . $this->token, $key);
         return $this->token;
     }
 
@@ -105,14 +101,31 @@ class TokenManager
         if (empty($cache)) {
             return false;
         }
-        // 更新有效期
-        $this->expire_in = $cache['expire_in'];
-        $this->setCache('auth:'. $this->token, [
-            'expire_in'=>$this->expire_in,
-            'key'=>$cache['key']
-        ]);
+        return $cache;
+    }
 
-        return $cache['key'];
+
+    /**
+     * 刷新令牌有效期
+     * @param int $expire_in
+     * @return false
+     */
+    public function refresh($expire_in)
+    {
+        if (empty($this->token)) {
+            throw new \InvalidArgumentException('要先verify');
+        }
+        $this->expire_in = $expire_in;
+
+        $cache = $this->getCache('auth:' . $this->token);
+
+        if (empty($cache)) {
+            throw new \InvalidArgumentException('登录态丢失');
+        }
+        // 更新有效期
+        $this->setCache('auth:'. $this->token, $cache);
+
+        return true;
     }
 
 
