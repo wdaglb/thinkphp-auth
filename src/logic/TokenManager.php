@@ -119,7 +119,7 @@ class TokenManager
     public function verify()
     {
         $list = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
-        if (empty($list)) {
+        if (count($list) != 2) {
             return false;
         }
         list($type, $this->token) = $list;
