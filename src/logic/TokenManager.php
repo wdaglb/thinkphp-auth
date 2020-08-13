@@ -12,39 +12,11 @@ class TokenManager
 
     private $prefix = 'admin';
 
+
     private $expire_in;
 
+
     private $token;
-
-
-    /**
-     * 设置cookie
-     * @param $key
-     * @param $value
-     */
-    protected function setCookie($key, $value)
-    {
-        if (empty($_ENV['PHPUNIT'])) {
-            Cookie::set($this->prefix . '_' . $key, $value, $this->expire_in);
-        } else {
-            $_COOKIE[$this->prefix . '_' . $key] = $value;
-        }
-    }
-
-
-    /**
-     * 获取Cookie
-     * @param $key
-     * @return mixed
-     */
-    protected function getCookie($key)
-    {
-        if (empty($_ENV['PHPUNIT'])) {
-            return Cookie::get($this->prefix . '_' . $key);
-        } else {
-            return $_COOKIE[$this->prefix . '_' . $key];
-        }
-    }
 
 
     /**
@@ -81,12 +53,19 @@ class TokenManager
 
 
     /**
-     * 删除cookie
-     * @param $key
+     * 获得当前令牌
+     * @return string
      */
-    protected function rmCookie($key)
+    public function get()
     {
-        Cache::rm($this->prefix . ':' . $key);
+        if (empty($this->token)) {
+            $list = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
+            if (count($list) != 2) {
+                return false;
+            }
+            list($type, $this->token) = $list;
+        }
+        return $this->token;
     }
 
 
@@ -101,7 +80,6 @@ class TokenManager
     {
         $this->expire_in = $expire;
         $this->token = strtoupper(md5(uniqid($key) . mt_rand(0, 9999999)));
-        $this->setCookie('token', $this->token);
         $this->setCache('auth:' . $this->token, [
             'expire_in'=>$expire,
             'key'=>$key,
@@ -118,11 +96,7 @@ class TokenManager
      */
     public function verify()
     {
-        $list = explode(' ', $_SERVER['HTTP_AUTHORIZATION'] ?? '');
-        if (count($list) != 2) {
-            return false;
-        }
-        list($type, $this->token) = $list;
+        $this->get();
         if (empty($this->token)) {
             return false;
         }
@@ -133,7 +107,6 @@ class TokenManager
         }
         // 更新有效期
         $this->expire_in = $cache['expire_in'];
-        $this->setCookie('token', $this->token);
         $this->setCache('auth:'. $this->token, [
             'expire_in'=>$this->expire_in,
             'key'=>$cache['key']
@@ -149,7 +122,6 @@ class TokenManager
     public function remove()
     {
         $this->rmCache('auth:' . $this->token);
-        $this->rmCookie('token');
     }
 
 }

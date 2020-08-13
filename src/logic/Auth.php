@@ -37,9 +37,20 @@ class Auth
      */
     protected $token;
 
+
     public function __construct()
     {
         $this->token = new TokenManager();
+    }
+
+
+    /**
+     * 登录令牌
+     * @return false|string
+     */
+    public function loginToken()
+    {
+        return $this->token->get();
     }
 
 
@@ -48,7 +59,7 @@ class Auth
      * @param string $username
      * @param string $password
      * @param int $expire_in
-     * @return KeUser
+     * @return $this
      * @throws AuthException
      */
     public function login($username, $password, $expire_in = 2880)
@@ -73,7 +84,7 @@ class Auth
         $this->token->create($user->id, $expire_in);
 
         $this->user = $user;
-        return $user;
+        return $this;
     }
 
 
@@ -136,7 +147,7 @@ class Auth
      */
     public function init()
     {
-        $key = (new TokenManager())->verify();
+        $key = $this->token->verify();
 
         $user = KeUser::where('id', $key)->find();
         if (!$user) {
