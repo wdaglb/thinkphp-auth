@@ -14,6 +14,8 @@ class KeRole extends Model
     protected $name = 'admin_role';
     protected $type = [
         'id'=>'integer',
+        'login_time'=>'timestamp',
+        'login_fail_time'=>'timestamp',
     ];
 
 
