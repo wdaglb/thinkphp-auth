@@ -11,6 +11,7 @@ class KeRole extends Model
     protected $pk = 'id';
     protected $autoWriteTimestamp = true;
     protected $createTime = 'create_time';
+    protected $updateTime = 'update_time';
     protected $name = 'admin_role';
     protected $type = [
         'id'=>'integer',
