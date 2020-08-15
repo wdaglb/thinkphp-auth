@@ -13,7 +13,7 @@ class KeRole extends Model
     protected $createTime = 'create_time';
     protected $name = 'admin_role';
     protected $type = [
-        'id'=>'integer'
+        'id'=>'integer',
     ];
 
 
@@ -31,6 +31,18 @@ class KeRole extends Model
     public function setPermissionAttr($data)
     {
         return implode(',', $data);
+    }
+
+
+    public function getLoginIpAttr()
+    {
+        return long2ip($this->getData('login_ip'));
+    }
+
+
+    public function setLoginIpAttr($ip)
+    {
+        return ip2long($ip);
     }
 
 
